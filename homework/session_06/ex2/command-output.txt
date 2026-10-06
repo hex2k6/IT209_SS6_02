@@ -1,0 +1,88 @@
++ sudo --version
++ head -n 1
+Sudo version 1.9.15p5
++ ps -p 1 -o comm=
+systemd
++ test -x /usr/bin/systemctl
++ sudo systemctl cat cron.service
+# /usr/lib/systemd/system/cron.service
+[Unit]
+Description=Regular background program processing daemon
+Documentation=man:cron(8)
+After=remote-fs.target nss-user-lookup.target
+
+[Service]
+EnvironmentFile=-/etc/default/cron
+ExecStart=/usr/sbin/cron -f -P $EXTRA_OPTS
+IgnoreSIGPIPE=false
+KillMode=process
+Restart=on-failure
+SyslogFacility=cron
+
+[Install]
+WantedBy=multi-user.target
++ sudo groupadd devops-admin
++ sudo adduser --disabled-password --gecos '' deployer
+info: Adding user `deployer' ...
+info: Selecting UID/GID from range 1000 to 59999 ...
+info: Adding new group `deployer' (1003) ...
+info: Adding new user `deployer' (1003) with group `deployer (1003)' ...
+info: Creating home directory `/home/deployer' ...
+info: Copying files from `/etc/skel' ...
+info: Adding new user `deployer' to supplemental / extra groups `users' ...
+info: Adding user `deployer' to group `users' ...
++ sudo usermod -aG devops-admin deployer
++ id deployer
+uid=1003(deployer) gid=1003(deployer) groups=1003(deployer),100(users),1002(devops-admin)
++ sudo install -m 600 devops-admin.sudoers /root/ex2-rule
++ printf '#!/bin/sh\nfor target do :; done\ncat /root/ex2-rule > "$target"\n'
++ sudo tee /root/ex2-editor
++ sudo chmod 700 /root/ex2-editor
++ sudo env EDITOR=/root/ex2-editor VISUAL=/root/ex2-editor /usr/sbin/visudo -f /etc/sudoers.d/devops-admin
++ sudo chmod 440 /etc/sudoers.d/devops-admin
++ sudo chmod 440 /etc/sudoers.d/runner
++ sudo /usr/sbin/visudo -c
+/etc/sudoers: parsed OK
+/etc/sudoers.d/90-cloud-init-users: parsed OK
+/etc/sudoers.d/README: parsed OK
+/etc/sudoers.d/devops-admin: parsed OK
+/etc/sudoers.d/runner: parsed OK
++ sudo cat /etc/sudoers.d/devops-admin
+# sudo >= 1.9.10; one service name, no extra options or arguments.
+%devops-admin ALL=(root) NOPASSWD: /usr/bin/systemctl ^start [a-zA-Z0-9_][a-zA-Z0-9_.@-]*$, /usr/bin/systemctl ^stop [a-zA-Z0-9_][a-zA-Z0-9_.@-]*$, /usr/bin/systemctl ^restart [a-zA-Z0-9_][a-zA-Z0-9_.@-]*$, /usr/bin/systemctl ^--no-pager status [a-zA-Z0-9_][a-zA-Z0-9_.@-]*$
++ sudo su - deployer -c 'bash -s'
+=== DEPLOYER_SESSION_BEGIN ===
+deployer
+uid=1003(deployer) gid=1003(deployer) groups=1003(deployer),100(users),1002(devops-admin)
+$ sudo -l
+Matching Defaults entries for deployer on runnervmmprz5:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, use_pty
+
+User deployer may run the following commands on runnervmmprz5:
+    (root) NOPASSWD: /usr/bin/systemctl ^start [a-zA-Z0-9_][a-zA-Z0-9_.@-]*$, /usr/bin/systemctl ^stop [a-zA-Z0-9_][a-zA-Z0-9_.@-]*$, /usr/bin/systemctl ^restart [a-zA-Z0-9_][a-zA-Z0-9_.@-]*$, /usr/bin/systemctl ^--no-pager status [a-zA-Z0-9_][a-zA-Z0-9_.@-]*$
+$ sudo -n systemctl restart cron
+restart exit code: 0 (no password prompt)
+$ sudo -n systemctl --no-pager status cron
+* cron.service - Regular background program processing daemon
+     Loaded: loaded (/usr/lib/systemd/system/cron.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-10-06 15:13:37 UTC; 8ms ago
+       Docs: man:cron(8)
+   Main PID: 2318 (cron)
+      Tasks: 1 (limit: 19137)
+     Memory: 472.0K (peak: 472.0K)
+        CPU: 1ms
+     CGroup: /system.slice/cron.service
+             `-2318 /usr/sbin/cron -f -P
+
+Oct 06 15:13:37 runnervmmprz5 systemd[1]: Started cron.service - Regular background program processing daemon.
+Oct 06 15:13:37 runnervmmprz5 cron[2318]: (CRON) INFO (pidfile fd = 3)
+Oct 06 15:13:37 runnervmmprz5 cron[2318]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
+$ systemctl is-active cron
+active
+Checking disallowed commands (must fail):
+sudo: a password is required
+sudo: a password is required
+sudo: a password is required
+PASS: NOPASSWD restart works; unrelated commands and extra options denied.
+=== DEPLOYER_SESSION_END ===
++ set +x
