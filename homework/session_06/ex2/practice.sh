@@ -15,7 +15,7 @@ id deployer
 # Use a root-owned editor helper to load the reviewed rule into visudo's temp file.
 # visudo performs the syntax check and saves the actual sudoers include.
 sudo install -m 600 devops-admin.sudoers /root/ex2-rule
-printf '#!/bin/sh\ncat /root/ex2-rule > "$1"\n' | sudo tee /root/ex2-editor >/dev/null
+printf '#!/bin/sh\nfor target do :; done\ncat /root/ex2-rule > "$target"\n' | sudo tee /root/ex2-editor >/dev/null
 sudo chmod 700 /root/ex2-editor
 sudo env EDITOR=/root/ex2-editor VISUAL=/root/ex2-editor /usr/sbin/visudo -f /etc/sudoers.d/devops-admin
 sudo chmod 440 /etc/sudoers.d/devops-admin
