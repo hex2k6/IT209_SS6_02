@@ -19,6 +19,8 @@ printf '#!/bin/sh\nfor target do :; done\ncat /root/ex2-rule > "$target"\n' | su
 sudo chmod 700 /root/ex2-editor
 sudo env EDITOR=/root/ex2-editor VISUAL=/root/ex2-editor /usr/sbin/visudo -f /etc/sudoers.d/devops-admin
 sudo chmod 440 /etc/sudoers.d/devops-admin
+# The hosted runner image ships its existing runner include with a different mode.
+sudo chmod 440 /etc/sudoers.d/runner
 sudo /usr/sbin/visudo -c
 sudo cat /etc/sudoers.d/devops-admin
 sudo su - deployer -c 'bash -s' <<'DEPLOYER'
