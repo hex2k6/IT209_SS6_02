@@ -1,0 +1,17 @@
+name: Verify group and sudoers exercise
+on:
+  push:
+    paths:
+      - homework/session_06/ex2/practice.sh
+      - homework/session_06/ex2/devops-admin.sudoers
+      - .github/workflows/ex2-sudoers.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  practice:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure with visudo and verify as deployer
+        run: bash homework/session_06/ex2/practice.sh
